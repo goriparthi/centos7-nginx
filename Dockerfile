@@ -22,6 +22,8 @@ ADD ./www.conf /etc/php-fpm.d/www.conf
 #Update nginx config
 ADD ./default.conf /etc/nginx/conf.d/default.conf
 
+ADD ./index.php /usr/share/nginx/html/index.php
+
 # Install supervisor to run jobs
 RUN yum install -y epel-release --nogpgcheck
 RUN yum install -y supervisor --nogpgcheck
