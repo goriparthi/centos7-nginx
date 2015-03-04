@@ -17,13 +17,23 @@ RUN yum install -y nginx
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 
 #Install remi repo manager to deploy php 5.6
-RUN rpm -ivh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+RUN rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm 
 
 #Install required php 5.6 packages
-RUN yum install -y php56 php56-php-fpm --enablerepo=remi,remi-php56
+RUN yum install -y php56w php56w-fpm
+
+#Update PHP configs
+ADD ./php.ini /etc/php.ini
+ADD ./www.conf /etc/php-fpm.d/www.conf
+
+#Update nginx config
+ADD ./default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 EXPOSE 443
 
+#Run PHP-FPM 
+CMD ["/usr/sbin/php-fpm --nodaemonize"]
+
 #Run nginx engine
-CMD ["nginx"]
+CMD ["/usr/sbin/nginx"]
