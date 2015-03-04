@@ -32,8 +32,5 @@ ADD ./default.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 EXPOSE 443
 
-#Run PHP-FPM 
-CMD ["/usr/sbin/php-fpm --nodaemonize"]
-
 #Run nginx engine
-CMD ["/usr/sbin/nginx"]
+CMD ["/usr/sbin/nginx && /usr/sbin/php-fpm --nodaemonize"]
