@@ -2,25 +2,18 @@
 
 FROM centos:centos7
 
-RUN yum -y update; yum clean all
-RUN yum -y install sudo epel-release; yum clean all
-
-#Sudo requires a tty. fix that.
-RUN sed -i 's/.*requiretty$/#Defaults requiretty/' /etc/sudoers
+RUN yum -y update --nogpgcheck; yum clean all
 
 #Install nginx repo
 RUN rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
 
 # Install latest version of nginx
-RUN yum install -y nginx 
+RUN yum install -y nginx --nogpgcheck
 
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 
-#Install remi repo manager to deploy php 5.6
-RUN rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm 
-
 #Install required php 5.6 packages
-RUN yum install -y php56w php56w-fpm
+RUN yum install -y php php-fpm --nogpgcheck
 
 #Update PHP configs
 ADD ./php.ini /etc/php.ini
@@ -29,8 +22,14 @@ ADD ./www.conf /etc/php-fpm.d/www.conf
 #Update nginx config
 ADD ./default.conf /etc/nginx/conf.d/default.conf
 
+# Install supervisor to run jobs
+RUN yum install -y epel-release --nogpgcheck
+RUN yum install -y supervisor --nogpgcheck
+
+ADD ./supervisord.conf /etc/supervisord.conf
+
 EXPOSE 80
 EXPOSE 443
 
 #Run nginx engine
-CMD ["/usr/sbin/nginx && /usr/sbin/php-fpm --nodaemonize"]
+CMD ["/usr/bin/supervisord","-n","-c","/etc/supervisord.conf"]
